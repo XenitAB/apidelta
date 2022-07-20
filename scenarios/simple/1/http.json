@@ -1,0 +1,17 @@
+[
+  {
+    "request": {
+      "method": "GET",
+      "path": "/v3/pet/findByStatus?status=pending"
+    },
+    "response": {
+      "status": 200,
+      "content": {
+        "mimeType": "application/json",
+        "parsed": {
+          "oneEntry": 1
+        }
+      }
+    }
+  }
+]

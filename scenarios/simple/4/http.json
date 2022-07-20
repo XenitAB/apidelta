@@ -1,0 +1,17 @@
+[
+  {
+    "request": {
+      "method": "GET",
+      "path": "does/not/exist"
+    },
+    "response": {
+      "status": 200,
+      "content": {
+        "mimeType": "application/json",
+        "parsed": {
+          "oneEntry": 1
+        }
+      }
+    }
+  }
+]
