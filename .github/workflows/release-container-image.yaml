@@ -59,6 +59,7 @@ jobs:
             REVISION=${{ github.sha }}
             CREATED=${{ steps.prep.outputs.BUILD_DATE }}
           labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=${{ github.event.repository.description }}
             org.opencontainers.image.url=${{ github.event.repository.html_url }}
