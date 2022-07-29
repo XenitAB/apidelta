@@ -200,25 +200,14 @@ export const match = (api: a.Root, input: har.t): Result.Result => {
   if (!result.success) {
     return result
   }
-
-  const pathWithNoServer = removeServer(api, input.request.path);
-  const foundPath = findPath(api, pathWithNoServer)
-
-  if (foundPath !== null) {
-    const path = foundPath.x_name
-    const operationToMatch = input.request.method;
-    result = matchResponse(
-      api.paths[path][operationToMatch],
-      input.response,
-      result,
-      path
-    );
-  } else {
-    // TODO: This shouldn't happen since we have already called findPath in
-    // matchRequest and it was successful
-    console.error("Could not find the normalized path for ", pathWithNoServer);
-    return result;
-  }
+  const pathNode = matchPath(api, input.request) as a.Path;
+  const operationToMatch = input.request.method;
+  result = matchResponse(
+    pathNode[operationToMatch],
+    input.response,
+    result,
+    pathNode.x_name
+  );
 
   return result;
 };
