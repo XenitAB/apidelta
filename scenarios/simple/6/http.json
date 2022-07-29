@@ -1,0 +1,17 @@
+[
+  {
+    "request": {
+      "method": "GET",
+      "path": "/ping"
+    },
+    "response": {
+      "status": 200,
+      "content": {
+        "mimeType": "text/plain",
+        "parsed": {
+          "oneEntry": 1
+        }
+      }
+    }
+  }
+]

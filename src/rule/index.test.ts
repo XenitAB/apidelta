@@ -161,6 +161,33 @@ describe("Test Rule Scenarios", () => {
         },
       },
     ],
+    [
+      "6",
+      {
+        success: true,
+        apiSubtree: {
+          "/ping": {
+            x_name: "/ping",
+            x_x_x_x_results: {
+              hits: 0,
+            },
+            get: {
+              responses: {
+                "200": {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                },
+              },
+              x_x_x_x_name: "get",
+              x_x_x_x_results: {
+                hits: 0,
+              },
+            },
+          },
+        },
+      },
+    ],
   ];
 
   const scenarios = scenarioNames.map((s) => {

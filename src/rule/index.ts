@@ -62,9 +62,12 @@ const incrementHit = (node: { x_x_x_x_results: a.ReportResult }) => {
 const removeServer = (api: a.Root, path: string) => {
   // For now we can only have one server
   const prefix = api.servers[0].url;
-
-  const result = path.slice(prefix.length); // TODO hacky
-  return result;
+  if (path.startsWith(prefix)) {
+    const result = path.slice(prefix.length)
+    return result
+  } else {
+    return path
+  }
 };
 
 const matchParameters = (
@@ -194,11 +197,15 @@ const matchResponse = (
 
 export const match = (api: a.Root, input: har.t): Result.Result => {
   let result = matchRequest(api, input.request);
+  if (!result.success) {
+    return result
+  }
 
   const pathWithNoServer = removeServer(api, input.request.path);
-  if (result.apiSubtree[pathWithNoServer]) {
-    // no need to match response if we did not match path above
-    const path = result.apiSubtree[pathWithNoServer].x_name;
+  const foundPath = findPath(api, pathWithNoServer)
+
+  if (foundPath !== null) {
+    const path = foundPath.x_name
     const operationToMatch = input.request.method;
     result = matchResponse(
       api.paths[path][operationToMatch],
@@ -206,6 +213,11 @@ export const match = (api: a.Root, input: har.t): Result.Result => {
       result,
       path
     );
+  } else {
+    // TODO: This shouldn't happen since we have already called findPath in
+    // matchRequest and it was successful
+    console.error("Could not find the normalized path for ", pathWithNoServer);
+    return result;
   }
 
   return result;
