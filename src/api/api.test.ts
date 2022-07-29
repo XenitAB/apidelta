@@ -4,7 +4,7 @@ import { Root } from "./model";
 const expected: Root = {
   servers: [
     {
-      url: "/v3",
+      url: "/api/v3",
     },
   ],
   paths: expect.objectContaining({
