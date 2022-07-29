@@ -38,45 +38,6 @@ const parseOneHar = (entry: Record<string, any>): har.t => {
   };
 };
 
-const parseSimple = (entry: Record<string, any>): har.t => {
-  const response: har.response = {
-    status: entry.response.status,
-    statusText: entry.response.status,
-    content: {
-      mimeType: entry.response.content.mimeType,
-      parsed: entry.response.content.parsed,
-      text: JSON.stringify(entry.response.content.parsed),
-    },
-  };
-  const request = entry.request;
-
-  const pathFull = request.path.split("?");
-
-  return {
-    response: {
-      status: response.status,
-      content: response.content,
-    },
-    request: {
-      method: request.method.toLowerCase(),
-      path: pathFull[0],
-      postData: request.postData,
-    },
-  };
-};
-
-export const getSimple = async (path: string): Promise<har.t[]> => {
-  const json = await readFileasJson(path);
-
-  const result: har.t[] = [];
-
-  for (const entry of json) {
-    result.push(parseSimple(entry));
-  }
-
-  return result;
-};
-
 export const getParsedHar = async (path: string): Promise<har.t[]> => {
   const harFile = await readFileasJson(path);
   const entries = getEntries(harFile);
