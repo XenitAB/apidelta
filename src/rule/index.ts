@@ -62,9 +62,12 @@ const incrementHit = (node: { x_x_x_x_results: a.ReportResult }) => {
 const removeServer = (api: a.Root, path: string) => {
   // For now we can only have one server
   const prefix = api.servers[0].url;
-
-  const result = path.slice(prefix.length); // TODO hacky
-  return result;
+  if (path.startsWith(prefix)) {
+    const result = path.slice(prefix.length)
+    return result
+  } else {
+    return path
+  }
 };
 
 const matchParameters = (
@@ -194,19 +197,17 @@ const matchResponse = (
 
 export const match = (api: a.Root, input: har.t): Result.Result => {
   let result = matchRequest(api, input.request);
-
-  const pathWithNoServer = removeServer(api, input.request.path);
-  if (result.apiSubtree[pathWithNoServer]) {
-    // no need to match response if we did not match path above
-    const path = result.apiSubtree[pathWithNoServer].x_name;
-    const operationToMatch = input.request.method;
-    result = matchResponse(
-      api.paths[path][operationToMatch],
-      input.response,
-      result,
-      path
-    );
+  if (!result.success) {
+    return result
   }
+  const pathNode = matchPath(api, input.request) as a.Path;
+  const operationToMatch = input.request.method;
+  result = matchResponse(
+    pathNode[operationToMatch],
+    input.response,
+    result,
+    pathNode.x_name
+  );
 
   return result;
 };
