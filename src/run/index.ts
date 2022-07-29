@@ -7,13 +7,13 @@ import { Result } from "../rule/model";
 
 export const runWithSimple = async (
   openApiPath: string,
-  requestResponsePath: string
+  requestResponsePaths: string[]
 ): Promise<{
   api: a.Root;
   results: Result[];
 }> => {
   const api = await getApi(openApiPath);
-  const reqRes = await getSimple(requestResponsePath);
+  const reqRes = (await Promise.all(requestResponsePaths.map(getSimple))).flat();
 
   const results = [];
 
@@ -30,13 +30,13 @@ export const runWithSimple = async (
 
 export const run = async (
   openApiPath: string,
-  requestResponsePath: string
+  requestResponsePaths: string[]
 ): Promise<{
   api: a.Root;
   results: Result[];
 }> => {
   const api = await getApi(openApiPath);
-  const reqRes = await getParsedHar(requestResponsePath);
+  const reqRes = (await Promise.all(requestResponsePaths.map(getParsedHar))).flat();
 
   const results = [];
   for (const r of reqRes) {

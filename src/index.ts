@@ -31,23 +31,22 @@ parser.add_argument("apispec", {
   nargs: 1,
 });
 
-parser.add_argument("recording", {
-  help: "Path to a har file or simple format if simple flag was passed",
-  nargs: 1,
+parser.add_argument("recordings", {
+  help: "Path to a har file or simple format if simple flag was passed. Can be used multiple times.",
+  nargs: '+',
 });
 
 const args: {
   simple: boolean;
   apispec: string;
-  recording: string;
+  recordings: string[];
   verbose: boolean;
   coverage: boolean;
 } = parser.parse_args();
 
 if (args.simple) {
   const openApiPath = args.apispec[0];
-  const harPath = args.recording[0];
-  runWithSimple(openApiPath, harPath).then(({ api, results }) => {
+  runWithSimple(openApiPath, args.recordings).then(({ api, results }) => {
     if (args.coverage) {
       printReport(api);
     }
@@ -69,8 +68,7 @@ if (args.simple) {
   });
 } else {
   const openApiPath = args.apispec[0];
-  const harPath = args.recording[0];
-  run(openApiPath, harPath).then(({ api, results }) => {
+  run(openApiPath, args.recordings).then(({ api, results }) => {
     if (args.coverage) {
       printReport(api);
     }
