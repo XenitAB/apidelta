@@ -7,6 +7,7 @@ const __dirname = path.resolve();
 const expected: har.t = {
   response: {
     status: 500,
+    statusText: "",
     content: {
       mimeType: "application/json",
       parsed: undefined,
