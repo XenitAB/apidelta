@@ -32,7 +32,7 @@ const parseOneHar = (entry: Record<string, any>): har.t => {
     },
     request: {
       method: request.method.toLowerCase(),
-      path: new URL(request.url).pathname + new URL(request.url).searchParams,
+      path: new URL(request.url).pathname,
       postData: request.postData,
     },
   };
