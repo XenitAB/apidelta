@@ -1,15 +1,14 @@
-import { verbosePrint } from "../utils/print";
 import getApi from "./index";
 import { Root } from "./model";
 
 const expected: Root = {
   servers: [
     {
-      url: "/v3",
+      url: "/api/v3",
     },
   ],
-  paths: {
-    "/pet/findByStatus": {
+  paths: expect.objectContaining({
+    "/pet/findByStatus": expect.objectContaining({
       x_name: "/pet/findByStatus",
       x_x_x_x_results: {
         hits: 0,
@@ -25,16 +24,17 @@ const expected: Root = {
                 hits: 0,
               },
               "application/json": {
-                schema: {
+                schema: expect.objectContaining({
                   type: "array",
-                  items: {
-                    properties: {
+                  items: expect.objectContaining({
+                    properties: expect.objectContaining({
                       name: {
                         type: "string",
+                        example: "doggie"
                       },
-                    },
-                  },
-                },
+                    }),
+                  }),
+                }),
               },
             },
           },
@@ -64,12 +64,12 @@ const expected: Root = {
           },
         ],
       },
-    },
-  },
+    }),
+  }),
 };
 
 test("Build API tree", async () => {
-  const path = __dirname + "../../../scenarios/simple/1/openapi.yaml";
+  const path = __dirname + "../../../scenarios/har/1/openapi.yaml";
   const api = await getApi(path);
 
   expect(api).toEqual(expected);

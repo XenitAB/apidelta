@@ -6,7 +6,7 @@ import { getParsedHar } from "../httpParsing/parseHar";
 import { verbosePrint, yamlDump } from "../utils/print";
 import { Result } from "./model";
 
-describe("Test Rule Scenarios", () => {
+describe("Test Simple Scenarios", () => {
   const scenarioNames = [
     [
       "1",
@@ -181,6 +181,50 @@ describe("Test Rule Scenarios", () => {
 
   test.each(scenarios)("Rule Match %#", async (scenario, expected) => {
     const httpPath = path.join(scenario as string, "http.json");
+    const apiPath = path.join(scenario as string, "openapi.yaml");
+
+    const api = await getApi(apiPath);
+    const parsedHar = await getParsedHar(httpPath);
+    const result = match(api, parsedHar[0]); // TODO We only test first for now
+    expect(result).toEqual(expected);
+  });
+});
+
+describe("Test HAR Scenarios", () => {
+  const scenarioNames = [
+    [
+      "1",
+      {
+        success: false,
+        apiSubtree: {
+          "/pet/{petId}/uploadImage": expect.objectContaining({
+            x_name: "/pet/{petId}/uploadImage",
+            post: expect.objectContaining({
+              x_x_x_x_results: {
+                hits: 0,
+              },
+              x_x_x_x_name: "post",
+            }),
+          }),
+        },
+      },
+    ],
+    [
+      "2",
+
+      {
+        success: true,
+        apiSubtree: expect.objectContaining({ "/pet": expect.anything() }),
+      },
+    ],
+  ];
+
+  const scenarios = scenarioNames.map((s) => {
+    return [`./scenarios/har/${s[0]}`, s[1]];
+  });
+
+  test.each(scenarios)("Rule Match %#", async (scenario, expected) => {
+    const httpPath = path.join(scenario as string, "http.har");
     const apiPath = path.join(scenario as string, "openapi.yaml");
 
     const api = await getApi(apiPath);

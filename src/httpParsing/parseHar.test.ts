@@ -1,4 +1,4 @@
-import { getParsedHar, getSimple } from "./parseHar";
+import { getParsedHar } from "./parseHar";
 import * as har from "./model";
 
 import path from "path";
