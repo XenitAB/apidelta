@@ -2,7 +2,7 @@ import path from "path";
 import { match } from ".";
 import getApi from "../api";
 import * as a from "../api/model";
-import { getSimple } from "../httpParsing/parseHar";
+import { getParsedHar } from "../httpParsing/parseHar";
 import { verbosePrint, yamlDump } from "../utils/print";
 import { Result } from "./model";
 
@@ -108,21 +108,6 @@ describe("Test Rule Scenarios", () => {
       },
     ],
     [
-      "4",
-      {
-        success: false,
-        apiSubtree: {
-          "does/not/exist": {
-            x_name: "does/not/exist",
-            x_x_x_x_results: {
-              hits: 0,
-              error: "PATH NOT FOUND",
-            },
-          },
-        },
-      },
-    ],
-    [
       "5",
       {
         success: false,
@@ -199,7 +184,7 @@ describe("Test Rule Scenarios", () => {
     const apiPath = path.join(scenario as string, "openapi.yaml");
 
     const api = await getApi(apiPath);
-    const parsedHar = await getSimple(httpPath);
+    const parsedHar = await getParsedHar(httpPath);
     const result = match(api, parsedHar[0]); // TODO We only test first for now
     expect(result).toEqual(expected);
   });
