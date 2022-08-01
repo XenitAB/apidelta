@@ -32,8 +32,8 @@ parser.add_argument("apispec", {
 });
 
 parser.add_argument("recordings", {
-  help: "Path to a har file or simple format if simple flag was passed. Can be used multiple times.",
-  nargs: '+',
+  help: "Path to a har file. Can be used multiple times.",
+  nargs: "+",
 });
 
 const args: {
