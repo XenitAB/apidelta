@@ -63,10 +63,10 @@ const removeServer = (api: a.Root, path: string) => {
   // For now we can only have one server
   const prefix = api.servers[0].url;
   if (path.startsWith(prefix)) {
-    const result = path.slice(prefix.length)
-    return result
+    const result = path.slice(prefix.length);
+    return result;
   } else {
-    return path
+    return path;
   }
 };
 
@@ -124,12 +124,11 @@ const matchResponseApi = (
   return matchedStatus;
 };
 
-const matchRequest = (api: a.Root, request: har.request): Result.Result => {
-  const result: Result.Result = {
-    success: true,
-    apiSubtree: {},
-  }; // Zero initialise to satisfy type
-
+const matchRequest = (
+  api: a.Root,
+  request: har.request,
+  result: Result.Result
+): void => {
   const pathNode = matchPath(api, request);
   if (!pathNode) {
     result.success = false;
@@ -137,7 +136,7 @@ const matchRequest = (api: a.Root, request: har.request): Result.Result => {
       request.path,
       "PATH NOT FOUND"
     );
-    return result;
+    return;
   }
   const newPathNode = a.newPathNode(pathNode.x_name);
   result.apiSubtree[pathNode.x_name] = newPathNode;
@@ -150,7 +149,7 @@ const matchRequest = (api: a.Root, request: har.request): Result.Result => {
       methodToMatch,
       "METHOD NOT FOUND"
     );
-    return result;
+    return;
   }
   const resultOperationNode = a.newOperationNode(request.method);
   newPathNode[request.method] = resultOperationNode;
@@ -163,7 +162,7 @@ const matchRequest = (api: a.Root, request: har.request): Result.Result => {
     });
   }
 
-  return result;
+  return;
 };
 
 const matchResponse = (
@@ -171,10 +170,9 @@ const matchResponse = (
   response: har.response,
   result: Result.Result,
   pathName: string
-): Result.Result => {
+): void => {
   if (!operation) {
     console.log("WARNING NO OPERATION WAS PASSED TO MATCH RESPONSE");
-    return result;
   }
 
   const matchedResponseApi = matchResponseApi(operation, response);
@@ -191,18 +189,23 @@ const matchResponse = (
       resultResponse[response.status] =
         a.newResponseApiNodeWithError("STATUS NOT FOUND");
   }
-
-  return result;
 };
 
 export const match = (api: a.Root, input: har.t): Result.Result => {
-  let result = matchRequest(api, input.request);
+  // This object mutates
+  const result: Result.Result = {
+    success: true,
+    apiSubtree: {},
+  }; // Zero initialise to satisfy type
+
+  matchRequest(api, input.request, result);
   if (!result.success) {
-    return result
+    return result;
   }
   const pathNode = matchPath(api, input.request) as a.Path;
   const operationToMatch = input.request.method;
-  result = matchResponse(
+
+  matchResponse(
     pathNode[operationToMatch],
     input.response,
     result,
