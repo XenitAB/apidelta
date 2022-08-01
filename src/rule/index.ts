@@ -124,37 +124,13 @@ const matchResponseApi = (
   return matchedStatus;
 };
 
-const matchRequest = (
-  api: a.Root,
+const verifyRequest = (
+  operationNode: a.Operation,
   request: har.request,
-  result: Result.Result
+  resultOperationNode: a.Operation
 ): void => {
-  const pathNode = matchPath(api, request);
-  if (!pathNode) {
-    result.success = false;
-    result.apiSubtree[request.path] = a.newPathNodeWithError(
-      request.path,
-      "PATH NOT FOUND"
-    );
-    return;
-  }
-  const newPathNode = a.newPathNode(pathNode.x_name);
-  result.apiSubtree[pathNode.x_name] = newPathNode;
-
-  const operationNode = matchOperation(pathNode, request);
-  if (!operationNode) {
-    result.success = false;
-    const methodToMatch = request.method;
-    newPathNode[methodToMatch] = a.newOperationNodeWithError(
-      methodToMatch,
-      "METHOD NOT FOUND"
-    );
-    return;
-  }
-  const resultOperationNode = a.newOperationNode(request.method);
-  newPathNode[request.method] = resultOperationNode;
-
   const parameters = matchParameters(operationNode, request);
+
   if (parameters) {
     resultOperationNode.parameters = [];
     resultOperationNode.parameters = parameters.map((p) => {
@@ -165,8 +141,8 @@ const matchRequest = (
   return;
 };
 
-const matchResponse = (
-  operation: a.Operation | undefined,
+const verifyResponse = (
+  operation: a.Operation,
   response: har.response,
   result: Result.Result,
   pathName: string
@@ -198,19 +174,42 @@ export const match = (api: a.Root, input: har.t): Result.Result => {
     apiSubtree: {},
   }; // Zero initialise to satisfy type
 
-  matchRequest(api, input.request, result);
+  const request = input.request;
+
+  // Find Path Node
+  const pathNode = matchPath(api, input.request);
+  if (!pathNode) {
+    result.success = false;
+    result.apiSubtree[request.path] = a.newPathNodeWithError(
+      request.path,
+      "PATH NOT FOUND"
+    );
+    return result;
+  }
+  const resultPathNode = a.newPathNode(pathNode.x_name);
+  result.apiSubtree[pathNode.x_name] = resultPathNode;
+
+  // Find operation
+  const operationNode = matchOperation(pathNode, request);
+  if (!operationNode) {
+    result.success = false;
+    const methodToMatch = request.method;
+    resultPathNode[methodToMatch] = a.newOperationNodeWithError(
+      methodToMatch,
+      "METHOD NOT FOUND"
+    );
+    return result;
+  }
+  const resultOperationNode = a.newOperationNode(request.method);
+  resultPathNode[request.method] = resultOperationNode;
+
+  // Verify
+  verifyRequest(operationNode, input.request, resultOperationNode);
   if (!result.success) {
     return result;
   }
-  const pathNode = matchPath(api, input.request) as a.Path;
-  const operationToMatch = input.request.method;
 
-  matchResponse(
-    pathNode[operationToMatch],
-    input.response,
-    result,
-    pathNode.x_name
-  );
+  verifyResponse(operationNode, input.response, result, pathNode.x_name);
 
   return result;
 };
