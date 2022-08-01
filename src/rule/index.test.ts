@@ -57,10 +57,11 @@ describe("Test Simple Scenarios", () => {
             post: {
               responses: {},
               x_x_x_x_name: "post",
-              x_x_x_x_results: {
+              x_x_x_x_results: expect.objectContaining({
                 hits: 0,
                 error: "METHOD NOT FOUND",
-              },
+                location: expect.stringMatching(/simple\/2\/http/),
+              }),
             },
           },
         },
@@ -117,10 +118,11 @@ describe("Test Simple Scenarios", () => {
             get: {
               responses: {
                 "201": {
-                  x_x_x_x_results: {
+                  x_x_x_x_results: expect.objectContaining({
                     hits: 0,
                     error: "STATUS NOT FOUND",
-                  },
+                    location: expect.stringMatching(/simple\/5\/http/),
+                  }),
                 },
               },
               x_x_x_x_name: "get",

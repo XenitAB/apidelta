@@ -58,6 +58,7 @@ export const flattenToLine = (result: Result): string => {
         str += " (";
         str += key;
         str += ")";
+        str += " @ " + response.x_x_x_x_results.location;
         str += ")";
       }
     }
