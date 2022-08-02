@@ -3,6 +3,7 @@ import { flattenToLine } from "./rule/model";
 import { run } from "./run";
 import { verbosePrint } from "./utils/print";
 import { ArgumentParser } from "argparse";
+import glob from "glob-promise";
 
 const parser = new ArgumentParser({
   description: "Write a description",
@@ -45,8 +46,21 @@ const args: {
 } = parser.parse_args();
 
 const openApiPath = args.apispec[0];
-run(openApiPath, args.recordings, args.match_server_url).then(
-  ({ api, results }) => {
+
+const expandGlobs = async (recordings: string[]) => {
+  return await Promise.all(
+    recordings.map(async (r) => {
+      if (glob.hasMagic(r)) return await glob.promise(r);
+      return r;
+    })
+  );
+};
+
+expandGlobs(args.recordings)
+  .then((recordings) => {
+    return run(openApiPath, recordings.flat(), args.match_server_url);
+  })
+  .then(({ api, results }) => {
     if (args.coverage) {
       printReport(api);
     }
@@ -66,5 +80,4 @@ run(openApiPath, args.recordings, args.match_server_url).then(
     if (errors.length > 0) {
       process.exit(1);
     }
-  }
-);
+  });
