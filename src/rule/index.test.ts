@@ -1,10 +1,7 @@
 import path from "path";
 import { match } from ".";
 import getApi from "../api";
-import * as a from "../api/model";
 import { getParsedHar } from "../httpParsing/parseHar";
-import { verbosePrint, yamlDump } from "../utils/print";
-import { Result } from "./model";
 
 describe("Test Simple Scenarios", () => {
   const scenarioNames = [
@@ -185,7 +182,7 @@ describe("Test Simple Scenarios", () => {
 
     const api = await getApi(apiPath);
     const parsedHar = await getParsedHar(httpPath);
-    const result = match(api, parsedHar[0]); // TODO We only test first for now
+    const result = match(api, parsedHar[0], "none"); // TODO We only test first for now
     expect(result).toEqual(expected);
   });
 });
@@ -229,7 +226,7 @@ describe("Test HAR Scenarios", () => {
 
     const api = await getApi(apiPath);
     const parsedHar = await getParsedHar(httpPath);
-    const result = match(api, parsedHar[0]); // TODO We only test first for now
+    const result = match(api, parsedHar[0], "none"); // TODO We only test first for now
     expect(result).toEqual(expected);
   });
 });
