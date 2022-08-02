@@ -11,7 +11,27 @@ const getEntries = (harFile: Record<string, any>) => {
   return entries;
 };
 
+const parseContent = (input: {
+  mimeType: string;
+  text: string;
+}): har.postData | undefined => {
+  if (!input) {
+    return undefined;
+  }
+  if (input.mimeType !== "application/json") {
+    console.warn("Only application/json is supported!");
+    return undefined;
+  }
+  return {
+    mimeType: input.mimeType,
+    text: input.text,
+    parsed: JSON.parse(input.text),
+  };
+};
+
 const parseOneHar = (entry: Record<string, any>): har.t => {
+  const request = entry.request;
+  const requestContent = parseContent(request.postData);
   const response: har.response = {
     status: entry.response.status,
     statusText: entry.response.status,
@@ -21,7 +41,6 @@ const parseOneHar = (entry: Record<string, any>): har.t => {
       text: entry.response.content.text,
     },
   };
-  const request = entry.request;
   return {
     response: {
       status: response.status,
@@ -31,15 +50,18 @@ const parseOneHar = (entry: Record<string, any>): har.t => {
       method: request.method.toLowerCase(),
       url: new URL(request.url),
       path: new URL(request.url).pathname,
-      postData: request.postData,
+      postData: requestContent,
     },
   };
 };
 
-export const getParsedHar = async (path: string): Promise<har.t[]> => {
-  const harFile = await readFileasJson(path);
+export const parseHar = (harFile: Record<string, any>): har.t[] => {
   const entries = getEntries(harFile);
+  return entries.map(parseOneHar);
+};
 
-  const parsedEntries = entries.map(parseOneHar);
+export const getParsedHar = async (filePath: string): Promise<har.t[]> => {
+  const harFile = await readFileasJson(filePath);
+  const parsedEntries = parseHar(harFile);
   return parsedEntries;
 };
