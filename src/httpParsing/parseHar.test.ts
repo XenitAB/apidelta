@@ -1,4 +1,4 @@
-import { getParsedHar } from "./parseHar";
+import { getParsedHar, parseHar } from "./parseHar";
 import * as har from "./model";
 
 import path from "path";
@@ -21,7 +21,7 @@ const expected: har.t = {
   },
 };
 
-test("Parse HAR", async () => {
+test("Parse HAR from disk", async () => {
   const path = __dirname + "/src/httpParsing/petstore3.swagger.io2.har";
 
   const parsedHar = await getParsedHar(path);
@@ -29,4 +29,68 @@ test("Parse HAR", async () => {
   const firstHar = parsedHar[0];
 
   expect(firstHar).toEqual(expected);
+});
+
+describe("Parse inlined HAR", () => {
+  const a = {
+    log: {
+      entries: [
+        {
+          request: {
+            method: "PUT",
+            url: "https://editor.swagger.io/api/pet",
+            headers: [],
+            queryString: [],
+            cookies: [],
+            postData: {
+              mimeType: "application/json",
+              text: '{"hello":"world"}',
+            },
+          },
+          response: {
+            status: 405,
+            statusText: "",
+            headers: [],
+            cookies: [],
+            content: {},
+          },
+        },
+        {
+          request: {
+            method: "PUT",
+            url: "https://editor.swagger.io/api/pet",
+            httpVersion: "http/2.0",
+            headers: [],
+            queryString: [],
+            cookies: [],
+            postData: {
+              mimeType: "application/json",
+              text: '[{"this": "valid"}]',
+            },
+          },
+          response: {
+            status: 405,
+            statusText: "",
+            httpVersion: "http/2.0",
+            headers: [],
+            cookies: [],
+            content: {},
+          },
+        },
+      ],
+    },
+  };
+
+  let parsedHar: har.t[] = [];
+
+  beforeAll(() => {
+    parsedHar = parseHar(a);
+  });
+
+  it("Sets postData on items", () => {
+    expect(parsedHar[0].request.postData).toBeDefined();
+    expect(parsedHar[1].request.postData).toBeDefined();
+    expect(parsedHar[0].request.postData?.parsed).toEqual({ hello: "world" });
+    expect(parsedHar[1].request.postData?.parsed).toEqual([{ this: "valid" }]);
+  });
 });
