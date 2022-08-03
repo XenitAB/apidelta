@@ -20,6 +20,12 @@ parser.add_argument("-c", "--coverage", {
   action: "store_true",
 });
 
+parser.add_argument("-m", "--match-server-url", {
+  default: "none",
+  choices: ["none", "full"],
+  help: "none ignores everything until path, full means entire url has to match",
+});
+
 parser.add_argument("apispec", {
   help: "Path to a open api 3 yaml file",
   nargs: 1,
@@ -35,27 +41,30 @@ const args: {
   recordings: string[];
   verbose: boolean;
   coverage: boolean;
+  match_server_url: "none" | "full";
 } = parser.parse_args();
 
 const openApiPath = args.apispec[0];
-run(openApiPath, args.recordings).then(({ api, results }) => {
-  if (args.coverage) {
-    printReport(api);
-  }
+run(openApiPath, args.recordings, args.match_server_url).then(
+  ({ api, results }) => {
+    if (args.coverage) {
+      printReport(api);
+    }
 
-  if (args.verbose) {
-    results.map(printResult);
-  }
+    if (args.verbose) {
+      results.map(printResult);
+    }
 
-  const errors = results
-    .filter((r) => !r.success)
-    .map((r, i) => {
-      if (i === 0) {
-        console.error("Errors:");
-      }
-      console.error(flattenToLine(r));
-    });
-  if (errors.length > 0) {
-    process.exit(1);
+    const errors = results
+      .filter((r) => !r.success)
+      .map((r, i) => {
+        if (i === 0) {
+          console.error("Errors:");
+        }
+        console.error(flattenToLine(r));
+      });
+    if (errors.length > 0) {
+      process.exit(1);
+    }
   }
-});
+);

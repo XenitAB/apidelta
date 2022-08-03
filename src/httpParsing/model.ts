@@ -12,6 +12,7 @@ export type response = {
 
 export type request = {
   method: "post" | "get" | "put" | "patch" | "delete";
+  url: URL;
   path: string;
   queryString?: [
     {

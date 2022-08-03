@@ -15,6 +15,7 @@ const expected: har.t = {
   },
   request: {
     method: "post",
+    url: new URL("https://petstore3.swagger.io/api/v3/pet/12/uploadImage"),
     path: "/api/v3/pet/12/uploadImage",
     postData: undefined,
   },

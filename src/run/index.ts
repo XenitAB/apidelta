@@ -7,17 +7,20 @@ import { Result } from "../rule/model";
 
 export const run = async (
   openApiPath: string,
-  requestResponsePaths: string[]
+  requestResponsePaths: string[],
+  match_server_url: string
 ): Promise<{
   api: a.Root;
   results: Result[];
 }> => {
   const api = await getApi(openApiPath);
-  const reqRes = (await Promise.all(requestResponsePaths.map(getParsedHar))).flat();
+  const reqRes = (
+    await Promise.all(requestResponsePaths.map(getParsedHar))
+  ).flat();
 
   const results = [];
   for (const r of reqRes) {
-    const result = match(api, r);
+    const result = match(api, r, match_server_url);
     results.push(result);
   }
 

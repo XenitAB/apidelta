@@ -1,4 +1,4 @@
-import { findPath } from ".";
+import { findPathNodeFromPath } from ".";
 import * as a from "../api/model";
 
 describe("Match paths to path nodes", () => {
@@ -7,7 +7,7 @@ describe("Match paths to path nodes", () => {
     const path = "/should/match/exactly";
     root.paths[path] = a.newPathNode(path);
 
-    const pathNode = findPath(root, path);
+    const pathNode = findPathNodeFromPath(root, path);
 
     expect(pathNode?.x_name).toBe(path);
   });
@@ -17,7 +17,7 @@ describe("Match paths to path nodes", () => {
     const path = "/exact/path";
     root.paths[path] = a.newPathNode(path);
 
-    const pathNode = findPath(root, "should/not/exist");
+    const pathNode = findPathNodeFromPath(root, "should/not/exist");
 
     expect(pathNode).toBe(null);
   });
@@ -27,7 +27,7 @@ describe("Match paths to path nodes", () => {
     const path = "/user/{user_id}";
     root.paths[path] = a.newPathNode(path);
 
-    const pathNode = findPath(root, "/user/1");
+    const pathNode = findPathNodeFromPath(root, "/user/1");
 
     expect(pathNode?.x_name).toBe(path);
   });
@@ -37,7 +37,7 @@ describe("Match paths to path nodes", () => {
     const path = "/user/{user_id}/subresource/{some_id}";
     root.paths[path] = a.newPathNode(path);
 
-    const pathNode = findPath(root, "/user/1/subresource/10");
+    const pathNode = findPathNodeFromPath(root, "/user/1/subresource/10");
 
     expect(pathNode?.x_name).toBe(path);
   });
@@ -50,7 +50,7 @@ describe("Match paths to path nodes", () => {
     const path2 = "/user/{user_id}/subresource/{some_id}/longer";
     root.paths[path2] = a.newPathNode(path2);
 
-    const pathNode = findPath(root, "/user/1/subresource/10");
+    const pathNode = findPathNodeFromPath(root, "/user/1/subresource/10");
 
     expect(pathNode?.x_name).toBe(path1);
   });
@@ -61,7 +61,7 @@ describe("Match paths to path nodes", () => {
     const path2 = "/user/{user_id}/subresource/{some_id}/longer";
     root.paths[path2] = a.newPathNode(path2);
 
-    const pathNode = findPath(root, "/user/1/subresource/10");
+    const pathNode = findPathNodeFromPath(root, "/user/1/subresource/10");
 
     expect(pathNode).toBe(null);
   });
@@ -77,7 +77,10 @@ describe("Match paths to path nodes", () => {
     const path3 = "/user/{user_id}/subresource/{some_id}/subsubresource";
     root.paths[path3] = a.newPathNode(path3);
 
-    const pathNode = findPath(root, "/user/1/subresource/10/subsubresource");
+    const pathNode = findPathNodeFromPath(
+      root,
+      "/user/1/subresource/10/subsubresource"
+    );
 
     expect(pathNode?.x_name).toBe(path3);
   });

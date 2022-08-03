@@ -1,7 +1,4 @@
-import { rejects } from "assert";
-import fs from "fs";
-import path from "path";
-import { readFile, readFileasJson } from "../utils/readFile";
+import { readFileasJson } from "../utils/readFile";
 import * as har from "./model";
 
 const getEntries = (harFile: Record<string, any>) => {
@@ -32,6 +29,7 @@ const parseOneHar = (entry: Record<string, any>): har.t => {
     },
     request: {
       method: request.method.toLowerCase(),
+      url: new URL(request.url),
       path: new URL(request.url).pathname,
       postData: request.postData,
     },

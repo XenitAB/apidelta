@@ -1,9 +1,11 @@
 import * as har from "../httpParsing/model";
 import * as a from "../api/model";
 import * as Result from "./model";
-import path, { join } from "path";
 
-export const findPath = (root: a.Root, path: string): a.Path | null => {
+export const findPathNodeFromPath = (
+  root: a.Root,
+  path: string
+): a.Path | null => {
   // It's important that an HTTP request with e.g /user/asd can match /user/{user_id}
   const toBeRetuend = root.paths[path];
 
@@ -59,15 +61,60 @@ const incrementHit = (node: { x_x_x_x_results: a.ReportResult }) => {
   node.x_x_x_x_results.hits++;
 };
 
-const removeServer = (api: a.Root, path: string) => {
+// Named sloppy since there are many cases this function does not catch
+const isAbsoluteUrlSloppy = (urlString: string) => {
+  return (
+    urlString.indexOf("http://") === 0 || urlString.indexOf("https://") === 0
+  );
+};
+
+export const removeServer = (
+  api: a.Root,
+  url: URL,
+  url_server_prefix: string
+): string | null => {
   // For now we can only have one server
-  const prefix = api.servers[0].url;
-  if (path.startsWith(prefix)) {
-    const result = path.slice(prefix.length);
-    return result;
-  } else {
-    return path;
+  const server = api.servers[0].url;
+  const pathToMatch = url.pathname;
+
+  if (!isAbsoluteUrlSloppy(server)) {
+    // Open Api server can start with slash, remove to simplify logic
+    let serverToMatch = server;
+    if (!server.startsWith("/")) {
+      serverToMatch = "/" + serverToMatch;
+    }
+
+    // If the relative server ends with a trailing slash we remove to simplify logic
+    if (server.endsWith("/")) {
+      serverToMatch = serverToMatch.slice(0, serverToMatch.length - 2);
+    }
+
+    if (pathToMatch.indexOf(serverToMatch) === 0) {
+      return pathToMatch.slice(serverToMatch.length, pathToMatch.length);
+    }
+    return null;
   }
+
+  const serverUrl = new URL(server);
+  if (url_server_prefix === "full") {
+    if (serverUrl.host !== url.host) {
+      return null;
+    }
+  }
+  let serverToMatch = serverUrl.pathname;
+  if (serverToMatch === "/") {
+    return pathToMatch;
+  }
+
+  // If the path ends with a trailing slash we remove to simplify logic
+  if (serverToMatch.endsWith("/")) {
+    serverToMatch = serverToMatch.slice(0, -1);
+  }
+
+  if (pathToMatch.indexOf(serverToMatch) === 0) {
+    return pathToMatch.slice(serverToMatch.length, pathToMatch.length);
+  }
+  return null;
 };
 
 const matchParameters = (
@@ -88,9 +135,16 @@ const matchParameters = (
   return parameterNodes;
 };
 
-const matchPath = (api: a.Root, request: har.request): a.Path | null => {
-  const pathWithNoServer = removeServer(api, request.path);
-  const pathNode = findPath(api, pathWithNoServer);
+const matchPath = (
+  api: a.Root,
+  request: har.request,
+  url_server_prefix: string
+): a.Path | null => {
+  const pathWithNoServer = removeServer(api, request.url, url_server_prefix);
+  if (!pathWithNoServer) {
+    return null;
+  }
+  const pathNode = findPathNodeFromPath(api, pathWithNoServer);
   if (!pathNode) {
     return null;
   }
@@ -167,7 +221,11 @@ const verifyResponse = (
   }
 };
 
-export const match = (api: a.Root, input: har.t): Result.Result => {
+export const match = (
+  api: a.Root,
+  input: har.t,
+  url_server_prefix: string
+): Result.Result => {
   // This object mutates
   const result: Result.Result = {
     success: true,
@@ -177,7 +235,7 @@ export const match = (api: a.Root, input: har.t): Result.Result => {
   const request = input.request;
 
   // Find Path Node
-  const pathNode = matchPath(api, input.request);
+  const pathNode = matchPath(api, input.request, url_server_prefix);
   if (!pathNode) {
     result.success = false;
     result.apiSubtree[request.path] = a.newPathNodeWithError(
