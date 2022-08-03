@@ -84,4 +84,17 @@ describe("Match paths to path nodes", () => {
 
     expect(pathNode?.x_name).toBe(path3);
   });
+
+  it("matches on /device/{some_id}/connection when there exists /device/{some_id}/{some_id}", () => {
+    const root: a.Root = a.newRootNode();
+    const path2 = "/device/{some_id}/{some_id}";
+    root.paths[path2] = a.newPathNode(path2);
+
+    const path1 = "/device/{some_id}/connection";
+    root.paths[path1] = a.newPathNode(path1);
+
+    const pathNode = findPathNodeFromPath(root, "/device/10/connection");
+
+    expect(pathNode?.x_name).toBe(path1);
+  });
 });

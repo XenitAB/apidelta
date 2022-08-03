@@ -25,6 +25,9 @@ export const findPathNodeFromPath = (
     .map((p) => p.split("/"))
     .filter((p) => p.length === pathToPatternMatch.length);
 
+  // Pretty stupid to sort, but this solves some cases... and makes the matching more consistent until we rewrite this
+  pathItems.sort();
+
   const foundPath: string[] = [];
   let currentIndex = 0;
   pathItems.map((onePath) => {
