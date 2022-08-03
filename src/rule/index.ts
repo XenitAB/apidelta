@@ -120,6 +120,50 @@ export const removeServer = (
   return null;
 };
 
+const matchRequestBody = (
+  operationNode: a.Operation,
+  request: har.request,
+  resultOperationNode: a.Operation,
+  result: Result.Result
+) => {
+  if (!operationNode.requestBody) {
+    result.success = false;
+    resultOperationNode.requestBody = a.newRequestBodyWithError(
+      "REQUEST BODY NOT FOUND"
+    );
+    return;
+  }
+  incrementHit(operationNode.requestBody);
+  resultOperationNode.requestBody = a.newRequestBody();
+
+  if (!operationNode.requestBody.content) {
+    result.success = false;
+    resultOperationNode.requestBody.content = a.newContentBodyWithErrors(
+      "CONTENT WAS NOT FOUND"
+    );
+    return;
+  }
+  incrementHit(operationNode.requestBody.content);
+  resultOperationNode.requestBody.content = a.newContentBody();
+
+  const mimeType = request.postData?.mimeType as string;
+  if (
+    mimeType === "application/json" &&
+    !operationNode.requestBody.content[mimeType]
+  ) {
+    result.success = false;
+    resultOperationNode.requestBody.content["application/json"] =
+      a.newMimeTypeWithError("BAD MIMETYPE");
+    return;
+  }
+
+  if (operationNode.requestBody.content["application/json"])
+    incrementHit(operationNode.requestBody.content["application/json"]);
+
+  resultOperationNode.requestBody.content["application/json"] =
+    a.newMimeType(undefined); // TODO add the schema once we are ready!
+};
+
 const matchParameters = (
   operationNode: a.Operation,
   request: har.request
@@ -184,7 +228,8 @@ const matchResponseApi = (
 const verifyRequest = (
   operationNode: a.Operation,
   request: har.request,
-  resultOperationNode: a.Operation
+  resultOperationNode: a.Operation,
+  result: Result.Result
 ): void => {
   const parameters = matchParameters(operationNode, request);
 
@@ -193,6 +238,10 @@ const verifyRequest = (
     resultOperationNode.parameters = parameters.map((p) => {
       return a.newParamaterNode(p.name, p.in, p.required);
     });
+  }
+
+  if (request.postData) {
+    matchRequestBody(operationNode, request, resultOperationNode, result);
   }
 
   return;
@@ -265,7 +314,7 @@ export const match = (
   resultPathNode[request.method] = resultOperationNode;
 
   // Verify
-  verifyRequest(operationNode, input.request, resultOperationNode);
+  verifyRequest(operationNode, input.request, resultOperationNode, result);
   if (!result.success) {
     return result;
   }

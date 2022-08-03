@@ -6,6 +6,14 @@ const readApi = async (path: string): Promise<a.Root> => {
   return api;
 };
 
+const getMimeType = (content: a.Content): a.MimeType | undefined => {
+  if (content["application/json"]) {
+    return a.newMimeType({
+      items: Object.keys(content["application/json"].schema).length,
+    });
+  }
+};
+
 const getContent = (response: a.ApiResponse): a.Content | undefined => {
   // We only cover application/json for now
   if (!response.content) {
@@ -15,10 +23,7 @@ const getContent = (response: a.ApiResponse): a.Content | undefined => {
     x_x_x_x_results: a.newReportItem(),
   };
 
-  if (response.content["application/json"]) {
-    contentToBeReturned["application/json"] =
-      response.content["application/json"];
-  }
+  contentToBeReturned["application/json"] = getMimeType(response.content);
 
   return contentToBeReturned;
 };
@@ -53,6 +58,20 @@ const getParameters = (parameters?: a.Parameter[]) => {
   });
 };
 
+const getRequestBody = (
+  requestBody?: a.RequestBody
+): a.RequestBody | undefined => {
+  if (!requestBody) {
+    return;
+  }
+
+  return {
+    content: getContent(requestBody),
+    required: requestBody.required,
+    x_x_x_x_results: a.newReportItem(),
+  };
+};
+
 const getOperation = (
   name: a.HTTPMETHOD,
   operation?: a.Operation
@@ -68,7 +87,7 @@ const getOperation = (
   };
 
   operationToBeAdded.parameters = getParameters(operation.parameters);
-  operationToBeAdded.requestBody; // TODO get request body
+  operationToBeAdded.requestBody = getRequestBody(operation.requestBody);
   operationToBeAdded.responses = getResponses(operation.responses);
 
   return operationToBeAdded;

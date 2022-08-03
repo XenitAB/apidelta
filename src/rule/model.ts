@@ -63,5 +63,14 @@ export const flattenToLine = (result: Result): string => {
     }
   }
 
+  if (operation?.requestBody) {
+    const requestBody = operation.requestBody;
+    if (requestBody.x_x_x_x_results.error) {
+      str += ", Error: (";
+      str += requestBody.x_x_x_x_results.error;
+      str += ")";
+    }
+  }
+
   return str;
 };
