@@ -23,19 +23,11 @@ const expected: Root = {
               x_x_x_x_results: {
                 hits: 0,
               },
-              "application/json": {
-                schema: expect.objectContaining({
-                  type: "array",
-                  items: expect.objectContaining({
-                    properties: expect.objectContaining({
-                      name: {
-                        type: "string",
-                        example: "doggie"
-                      },
-                    }),
-                  }),
-                }),
-              },
+              "application/json": expect.objectContaining({
+                x_x_x_x_results: {
+                  hits: 0,
+                },
+              }),
             },
           },
           "400": {

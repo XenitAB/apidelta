@@ -170,13 +170,84 @@ describe("Test Simple Scenarios", () => {
         },
       },
     ],
+    [
+      "requestBodyNotDefined",
+      {
+        success: false,
+        apiSubtree: {
+          "/ping": {
+            x_name: "/ping",
+            x_x_x_x_results: {
+              hits: 0,
+            },
+            get: {
+              responses: {},
+              x_x_x_x_name: "get",
+              x_x_x_x_results: {
+                hits: 0,
+              },
+              requestBody: {
+                required: false,
+                x_x_x_x_results: {
+                  hits: 0,
+                  error: "REQUEST BODY NOT FOUND",
+                },
+              },
+            },
+          },
+        },
+      },
+    ],
+    [
+      "checkRequestBody",
+      {
+        success: true,
+        apiSubtree: {
+          "/ping": {
+            x_name: "/ping",
+            x_x_x_x_results: {
+              hits: 0,
+            },
+            get: {
+              responses: {
+                "200": {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                },
+              },
+              x_x_x_x_name: "get",
+              x_x_x_x_results: {
+                hits: 0,
+              },
+              requestBody: {
+                required: false,
+                x_x_x_x_results: {
+                  hits: 0,
+                },
+                content: {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                  "application/json": {
+                    x_x_x_x_results: {
+                      hits: 0,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    ],
   ];
 
   const scenarios = scenarioNames.map((s) => {
     return [`./scenarios/simple/${s[0]}`, s[1]];
   });
 
-  test.each(scenarios)("Rule Match %#", async (scenario, expected) => {
+  test.each(scenarios)("Rule Match %s", async (scenario, expected) => {
     const httpPath = path.join(scenario as string, "http.json");
     const apiPath = path.join(scenario as string, "openapi.yaml");
 
@@ -220,7 +291,7 @@ describe("Test HAR Scenarios", () => {
     return [`./scenarios/har/${s[0]}`, s[1]];
   });
 
-  test.each(scenarios)("Rule Match %#", async (scenario, expected) => {
+  test.each(scenarios)("Rule Match %s", async (scenario, expected) => {
     const httpPath = path.join(scenario as string, "http.har");
     const apiPath = path.join(scenario as string, "openapi.yaml");
 

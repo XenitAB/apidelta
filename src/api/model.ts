@@ -12,7 +12,10 @@ export type HTTPMETHOD =
 export type ApiError =
   | "METHOD NOT FOUND"
   | "PATH NOT FOUND"
-  | "STATUS NOT FOUND";
+  | "STATUS NOT FOUND"
+  | "REQUEST BODY NOT FOUND"
+  | "CONTENT WAS NOT FOUND"
+  | "BAD MIMETYPE";
 
 export type ReportResult = {
   hits: number;
@@ -122,15 +125,41 @@ export type Parameter = {
   x_x_x_x_results: ReportResult;
 };
 
+export const newRequestBodyWithError = (error: ApiError): RequestBody => {
+  return {
+    required: false,
+    x_x_x_x_results: newReportItemWithError(error),
+  };
+};
+
+export const newRequestBody = (): RequestBody => {
+  return {
+    required: false,
+    x_x_x_x_results: newReportItem(),
+  };
+};
+
 export type RequestBody = {
   required: boolean;
-  content: Content;
+  content?: Content;
 
   x_x_x_x_results: ReportResult;
 };
 
+export const newContentBody = (): Content => {
+  return {
+    x_x_x_x_results: newReportItem(),
+  };
+};
+
+export const newContentBodyWithErrors = (error: ApiError): Content => {
+  return {
+    x_x_x_x_results: newReportItemWithError(error),
+  };
+};
+
 export type Content = {
-  "application/json"?: any;
+  "application/json"?: MimeType;
 
   x_x_x_x_results: ReportResult;
 };
@@ -151,5 +180,24 @@ export const newResponseApiNode = (): ApiResponse => {
 export type ApiResponse = {
   content?: Content;
 
+  x_x_x_x_results: ReportResult;
+};
+
+export const newMimeTypeWithError = (error: ApiError): MimeType => {
+  return {
+    schema: null,
+    x_x_x_x_results: newReportItemWithError(error),
+  };
+};
+
+export const newMimeType = (schema: any): MimeType => {
+  return {
+    schema: schema,
+    x_x_x_x_results: newReportItem(),
+  };
+};
+
+export type MimeType = {
+  schema: any;
   x_x_x_x_results: ReportResult;
 };
