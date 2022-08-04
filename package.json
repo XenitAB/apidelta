@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
-    "lint": "eslint --ignore-path .gitignore --ext .ts ."
+    "lint": "eslint --ignore-path .gitignore --ext .ts,.test.ts ."
   },
   "files": [
     "dist"

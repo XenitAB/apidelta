@@ -30,7 +30,7 @@ const expected: Root = {
                     properties: expect.objectContaining({
                       name: {
                         type: "string",
-                        example: "doggie"
+                        example: "doggie",
                       },
                     }),
                   }),
