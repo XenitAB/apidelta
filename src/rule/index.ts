@@ -146,19 +146,16 @@ const matchRequestBody = (
   incrementHit(operationNode.requestBody.content);
   resultOperationNode.requestBody.content = a.newContentBody();
 
-  const requestMimeType = request.postData?.mimeType as string;
-  if (
-    requestMimeType === "application/json" &&
-    !operationNode.requestBody.content[requestMimeType]
-  ) {
+  const requestMimeType = request.postData?.mimeType as a.Mime;
+  const mimeType = operationNode.requestBody.content[requestMimeType];
+  if (!mimeType) {
     result.success = false;
-    resultOperationNode.requestBody.content["application/json"] =
+    resultOperationNode.requestBody.content[requestMimeType] =
       a.newMimeTypeWithError("BAD MIMETYPE");
     return;
   }
 
-  if (operationNode.requestBody.content["application/json"])
-    incrementHit(operationNode.requestBody.content["application/json"]);
+  incrementHit(mimeType);
 
   resultOperationNode.requestBody.content["application/json"] =
     a.newMimeType(undefined); // TODO add the schema once we are ready!

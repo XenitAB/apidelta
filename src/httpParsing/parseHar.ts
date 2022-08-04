@@ -18,15 +18,15 @@ const parseContent = (input: {
   if (!input) {
     return undefined;
   }
-  if (input.mimeType !== "application/json") {
-    console.warn("Only application/json is supported!");
-    return undefined;
+  if (input.mimeType === "application/json" || input.mimeType === "text/json") {
+    return {
+      mimeType: input.mimeType,
+      text: input.text,
+      parsed: null,
+    };
   }
-  return {
-    mimeType: input.mimeType,
-    text: input.text,
-    parsed: null,
-  };
+  console.warn("Only application/json and text/json is supported!");
+  return undefined;
 };
 
 const parseOneHar = (entry: Record<string, any>): har.t => {

@@ -159,8 +159,11 @@ export const newContentBodyWithErrors = (error: ApiError): Content => {
   };
 };
 
+export type Mime = "application/json" | "text/json";
+
 export type Content = {
   "application/json"?: MimeType;
+  "text/json"?: MimeType;
 
   x_x_x_x_results: ReportResult;
 };
