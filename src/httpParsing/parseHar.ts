@@ -1,45 +1,36 @@
-import { readFileasJson } from "../utils/readFile";
+import fs from "fs";
+import util from "util";
 import * as har from "./model";
 
-const getEntries = (harFile: Record<string, any>) => {
-  const entries = harFile.log.entries.map((e: any) => {
-    return {
-      request: e.request,
-      response: e.response,
-    };
-  });
-  return entries;
-};
+const readFile = util.promisify(fs.readFile);
 
-const parseOneHar = (entry: Record<string, any>): har.t => {
-  const response: har.response = {
-    status: entry.response.status,
-    statusText: entry.response.status,
-    content: {
-      mimeType: entry.response.content.mimeType,
-      parsed: undefined,
-      text: entry.response.content.text,
-    },
-  };
-  const request = entry.request;
+const parseHarEntry = (entry: Record<string, any>, location: string): har.t => {
   return {
-    response: {
-      status: response.status,
-      content: response.content,
-    },
     request: {
-      method: request.method.toLowerCase(),
-      url: new URL(request.url),
-      path: new URL(request.url).pathname,
-      postData: request.postData,
+      method: entry.request.method.toLowerCase(),
+      url: new URL(entry.request.url),
+      path: new URL(entry.request.url).pathname,
+      postData: entry.request.postData,
     },
+    response: {
+      status: entry.response.status,
+      statusText: entry.response.statusText,
+      content: {
+        mimeType: entry.response.content.mimeType,
+        parsed: undefined,
+        text: entry.response.content.text,
+      },
+    },
+    location,
   };
 };
 
 export const getParsedHar = async (path: string): Promise<har.t[]> => {
-  const harFile = await readFileasJson(path);
-  const entries = getEntries(harFile);
-
-  const parsedEntries = entries.map(parseOneHar);
-  return parsedEntries;
+  const harFile = JSON.parse(await readFile(path, { encoding: "utf8" }));
+  return harFile.log.entries.map((e: Record<string, any>, i: number) =>
+    parseHarEntry(
+      e,
+      `[file=${path}, entry=${i + 1}, startedDateTime=${e.startedDateTime}]`
+    )
+  );
 };

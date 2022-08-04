@@ -17,6 +17,7 @@ export type ApiError =
 export type ReportResult = {
   hits: number;
   error?: ApiError;
+  location?: string;
 };
 
 export const newReportItem = (): ReportResult => {
@@ -25,10 +26,14 @@ export const newReportItem = (): ReportResult => {
   };
 };
 
-export const newReportItemWithError = (error: ApiError): ReportResult => {
+export const newReportItemWithError = (
+  error: ApiError,
+  location: string
+): ReportResult => {
   return {
     hits: 0,
     error,
+    location,
   };
 };
 
@@ -64,10 +69,14 @@ export const newPathNode = (name: string): Path => {
   };
 };
 
-export const newPathNodeWithError = (path: string, error: ApiError): Path => {
+export const newPathNodeWithError = (
+  path: string,
+  error: ApiError,
+  location: string
+): Path => {
   return {
     x_name: path,
-    x_x_x_x_results: newReportItemWithError(error),
+    x_x_x_x_results: newReportItemWithError(error, location),
   };
 };
 
@@ -90,12 +99,13 @@ export const newOperationNode = (name: HTTPMETHOD): Operation => {
 
 export const newOperationNodeWithError = (
   name: HTTPMETHOD,
-  error: ApiError
+  error: ApiError,
+  location: string
 ): Operation => {
   return {
     responses: {},
     x_x_x_x_name: name,
-    x_x_x_x_results: newReportItemWithError(error),
+    x_x_x_x_results: newReportItemWithError(error, location),
   };
 };
 
@@ -135,9 +145,12 @@ export type Content = {
   x_x_x_x_results: ReportResult;
 };
 
-export const newResponseApiNodeWithError = (error: ApiError): ApiResponse => {
+export const newResponseApiNodeWithError = (
+  error: ApiError,
+  location: string
+): ApiResponse => {
   return {
-    x_x_x_x_results: newReportItemWithError(error),
+    x_x_x_x_results: newReportItemWithError(error, location),
   };
 };
 

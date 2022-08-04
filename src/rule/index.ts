@@ -183,9 +183,10 @@ const matchResponseApi = (
 
 const verifyRequest = (
   operationNode: a.Operation,
-  request: har.request,
+  input: har.t,
   resultOperationNode: a.Operation
 ): void => {
+  const request = input.request;
   const parameters = matchParameters(operationNode, request);
 
   if (parameters) {
@@ -200,14 +201,14 @@ const verifyRequest = (
 
 const verifyResponse = (
   operation: a.Operation,
-  response: har.response,
+  input: har.t,
   result: Result.Result,
   pathName: string
 ): void => {
   if (!operation) {
     console.log("WARNING NO OPERATION WAS PASSED TO MATCH RESPONSE");
   }
-
+  const response = input.response;
   const matchedResponseApi = matchResponseApi(operation, response);
   const resultOperation = result.apiSubtree[pathName][operation.x_x_x_x_name];
   if (matchedResponseApi) {
@@ -219,8 +220,10 @@ const verifyResponse = (
     const resultResponse = resultOperation?.responses;
     result.success = false;
     if (resultResponse)
-      resultResponse[response.status] =
-        a.newResponseApiNodeWithError("STATUS NOT FOUND");
+      resultResponse[response.status] = a.newResponseApiNodeWithError(
+        "STATUS NOT FOUND",
+        input.location
+      );
   }
 };
 
@@ -243,7 +246,8 @@ export const match = (
     result.success = false;
     result.apiSubtree[request.path] = a.newPathNodeWithError(
       request.path,
-      "PATH NOT FOUND"
+      "PATH NOT FOUND",
+      input.location
     );
     return result;
   }
@@ -257,7 +261,8 @@ export const match = (
     const methodToMatch = request.method;
     resultPathNode[methodToMatch] = a.newOperationNodeWithError(
       methodToMatch,
-      "METHOD NOT FOUND"
+      "METHOD NOT FOUND",
+      input.location
     );
     return result;
   }
@@ -265,12 +270,12 @@ export const match = (
   resultPathNode[request.method] = resultOperationNode;
 
   // Verify
-  verifyRequest(operationNode, input.request, resultOperationNode);
+  verifyRequest(operationNode, input, resultOperationNode);
   if (!result.success) {
     return result;
   }
 
-  verifyResponse(operationNode, input.response, result, pathNode.x_name);
+  verifyResponse(operationNode, input, result, pathNode.x_name);
 
   return result;
 };

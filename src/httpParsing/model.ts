@@ -30,4 +30,5 @@ export type request = {
 export type t = {
   request: request;
   response: response;
+  location: string;
 };
