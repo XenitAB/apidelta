@@ -181,7 +181,13 @@ describe("Test Simple Scenarios", () => {
               hits: 0,
             },
             get: {
-              responses: {},
+              responses: {
+                "200": {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                },
+              },
               x_x_x_x_name: "get",
               x_x_x_x_results: {
                 hits: 0,
@@ -241,6 +247,40 @@ describe("Test Simple Scenarios", () => {
         },
       },
     ],
+    [
+      "specRequiredRequestBodyButNoneInRequest",
+      {
+        success: false,
+        apiSubtree: {
+          "/ping": {
+            x_name: "/ping",
+            x_x_x_x_results: {
+              hits: 0,
+            },
+            post: {
+              responses: {
+                "200": {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                },
+              },
+              x_x_x_x_name: "post",
+              x_x_x_x_results: {
+                hits: 0,
+              },
+              requestBody: {
+                required: false,
+                x_x_x_x_results: {
+                  hits: 0,
+                  error: "REQUEST BODY WAS REQUIRED BUT NOTHING IN REQUEST",
+                },
+              },
+            },
+          },
+        },
+      },
+    ],
   ];
 
   const scenarios = scenarioNames.map((s) => {
@@ -285,6 +325,7 @@ describe("Test HAR Scenarios", () => {
         apiSubtree: expect.objectContaining({ "/pet": expect.anything() }),
       },
     ],
+    ,
   ];
 
   const scenarios = scenarioNames.map((s) => {

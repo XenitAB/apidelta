@@ -15,7 +15,8 @@ export type ApiError =
   | "STATUS NOT FOUND"
   | "REQUEST BODY NOT FOUND"
   | "CONTENT WAS NOT FOUND"
-  | "BAD MIMETYPE";
+  | "BAD MIMETYPE"
+  | "REQUEST BODY WAS REQUIRED BUT NOTHING IN REQUEST";
 
 export type ReportResult = {
   hits: number;

@@ -240,6 +240,14 @@ const verifyRequest = (
     });
   }
 
+  if (operationNode.requestBody?.required && !request.postData) {
+    result.success = false;
+    resultOperationNode.requestBody = a.newRequestBodyWithError(
+      "REQUEST BODY WAS REQUIRED BUT NOTHING IN REQUEST"
+    );
+    return;
+  }
+
   if (request.postData) {
     matchRequestBody(operationNode, request, resultOperationNode, result);
   }
@@ -315,9 +323,6 @@ export const match = (
 
   // Verify
   verifyRequest(operationNode, input.request, resultOperationNode, result);
-  if (!result.success) {
-    return result;
-  }
 
   verifyResponse(operationNode, input.response, result, pathNode.x_name);
 
