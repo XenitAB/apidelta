@@ -4,7 +4,7 @@ import * as Result from "./model";
 
 export const findPathNodeFromPath = (
   root: a.Root,
-  path: string
+  path: string,
 ): a.Path | null => {
   // It's important that an HTTP request with e.g /user/asd can match /user/{user_id}
   const toBeRetuend = root.paths[path];
@@ -74,7 +74,7 @@ const isAbsoluteUrlSloppy = (urlString: string) => {
 export const removeServer = (
   api: a.Root,
   url: URL,
-  url_server_prefix: string
+  url_server_prefix: string,
 ): string | null => {
   // For now we can only have one server
   const server = api.servers[0].url;
@@ -124,49 +124,69 @@ const matchRequestBody = (
   operationNode: a.Operation,
   request: har.request,
   resultOperationNode: a.Operation,
-  result: Result.Result
+  result: Result.Result,
 ) => {
   if (!operationNode.requestBody) {
     result.success = false;
     resultOperationNode.requestBody = a.newRequestBodyWithError(
-      "REQUEST BODY NOT FOUND"
+      "REQUEST BODY NOT FOUND",
     );
     return;
   }
   incrementHit(operationNode.requestBody);
   resultOperationNode.requestBody = a.newRequestBody();
 
-  if (!operationNode.requestBody.content) {
+  const contentNode = operationNode.requestBody.content;
+  if (!contentNode) {
     result.success = false;
     resultOperationNode.requestBody.content = a.newContentBodyWithErrors(
-      "CONTENT WAS NOT FOUND"
+      "CONTENT WAS NOT FOUND",
     );
     return;
   }
-  incrementHit(operationNode.requestBody.content);
+  incrementHit(contentNode);
   resultOperationNode.requestBody.content = a.newContentBody();
 
   const mimeType = request.postData?.mimeType as string;
-  if (
-    mimeType === "application/json" &&
-    !operationNode.requestBody.content[mimeType]
-  ) {
+  if (mimeType === "application/json" && !contentNode[mimeType]) {
     result.success = false;
     resultOperationNode.requestBody.content["application/json"] =
       a.newMimeTypeWithError("BAD MIMETYPE");
     return;
   }
 
-  if (operationNode.requestBody.content["application/json"])
-    incrementHit(operationNode.requestBody.content["application/json"]);
+  const mimeNode = contentNode["application/json"];
+  if (!mimeNode) {
+    result.success = false;
+    resultOperationNode.requestBody.content["application/json"] =
+      a.newMimeTypeWithError("BAD MIMETYPE");
+    return;
+  }
 
-  resultOperationNode.requestBody.content["application/json"] =
-    a.newMimeType(undefined); // TODO add the schema once we are ready!
+  const validateFunction = mimeNode.validate;
+  const schema = mimeNode.schema;
+  if (!validateFunction || !schema) {
+    result.success = false;
+    resultOperationNode.requestBody.content["application/json"] =
+      a.newMimeTypeWithError("BAD SCHEMA");
+    return;
+  }
+
+  const validated = validateFunction(request.postData?.parsed);
+  if (!validated) {
+    result.success = false;
+    resultOperationNode.requestBody.content["application/json"] =
+      a.newMimeTypeWithError("JSON NOT ACCORDING TO SCHEMA");
+    return;
+  }
+
+  resultOperationNode.requestBody.content["application/json"] = a.newMimeType();
+  incrementHit(mimeNode);
 };
 
 const matchParameters = (
   operationNode: a.Operation,
-  request: har.request
+  request: har.request,
 ): a.Parameter[] | null => {
   if (!operationNode.parameters) {
     return null;
@@ -185,7 +205,7 @@ const matchParameters = (
 const matchPath = (
   api: a.Root,
   request: har.request,
-  url_server_prefix: string
+  url_server_prefix: string,
 ): a.Path | null => {
   const pathWithNoServer = removeServer(api, request.url, url_server_prefix);
   if (!pathWithNoServer) {
@@ -212,7 +232,7 @@ const matchOperation = (pathNode: a.Path, request: har.request) => {
 
 const matchResponseApi = (
   operationNode: a.Operation,
-  response: har.response
+  response: har.response,
 ): a.ApiResponse | null => {
   const statusToMatch = response.status;
 
@@ -229,7 +249,7 @@ const verifyRequest = (
   operationNode: a.Operation,
   request: har.request,
   resultOperationNode: a.Operation,
-  result: Result.Result
+  result: Result.Result,
 ): void => {
   const parameters = matchParameters(operationNode, request);
 
@@ -251,7 +271,7 @@ const verifyResponse = (
   operation: a.Operation,
   response: har.response,
   result: Result.Result,
-  pathName: string
+  pathName: string,
 ): void => {
   if (!operation) {
     console.log("WARNING NO OPERATION WAS PASSED TO MATCH RESPONSE");
@@ -276,7 +296,7 @@ const verifyResponse = (
 export const match = (
   api: a.Root,
   input: har.t,
-  url_server_prefix: string
+  url_server_prefix: string,
 ): Result.Result => {
   // This object mutates
   const result: Result.Result = {
@@ -292,7 +312,7 @@ export const match = (
     result.success = false;
     result.apiSubtree[request.path] = a.newPathNodeWithError(
       request.path,
-      "PATH NOT FOUND"
+      "PATH NOT FOUND",
     );
     return result;
   }
@@ -306,7 +326,7 @@ export const match = (
     const methodToMatch = request.method;
     resultPathNode[methodToMatch] = a.newOperationNodeWithError(
       methodToMatch,
-      "METHOD NOT FOUND"
+      "METHOD NOT FOUND",
     );
     return result;
   }
@@ -315,9 +335,6 @@ export const match = (
 
   // Verify
   verifyRequest(operationNode, input.request, resultOperationNode, result);
-  if (!result.success) {
-    return result;
-  }
 
   verifyResponse(operationNode, input.response, result, pathNode.x_name);
 

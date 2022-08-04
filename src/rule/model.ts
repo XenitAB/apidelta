@@ -70,6 +70,23 @@ export const flattenToLine = (result: Result): string => {
       str += requestBody.x_x_x_x_results.error;
       str += ")";
     }
+
+    const content = requestBody.content;
+    if (content) {
+      if (content.x_x_x_x_results.error) {
+        str += ", Error: (";
+        str += content.x_x_x_x_results.error;
+        str += ")";
+      }
+
+      const mimeType = content["application/json"];
+      if (mimeType && mimeType.x_x_x_x_results.error) {
+        str += ", Error: (";
+        str += mimeType.x_x_x_x_results.error;
+        str += ")";
+      }
+    }
+    requestBody.content?.["application/json"];
   }
 
   return str;
