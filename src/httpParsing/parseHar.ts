@@ -25,7 +25,7 @@ const parseContent = (input: {
   return {
     mimeType: input.mimeType,
     text: input.text,
-    parsed: JSON.parse(input.text),
+    parsed: null,
   };
 };
 

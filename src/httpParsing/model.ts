@@ -1,14 +1,6 @@
-export type JSONValue = string | number | boolean | JSONObject | JSONArray;
-
-export type JSONObject = {
-  [x: string]: JSONValue;
-};
-
-export type JSONArray = Array<JSONValue>;
-
 export type postData = {
   mimeType: string;
-  parsed?: JSONObject | JSONArray;
+  parsed?: null | any;
   text: string;
 };
 
@@ -30,7 +22,7 @@ export type request = {
     {
       name: string;
       value: string;
-    }
+    },
   ];
   postData?: postData;
 };

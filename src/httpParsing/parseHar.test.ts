@@ -90,7 +90,5 @@ describe("Parse inlined HAR", () => {
   it("Sets postData on items", () => {
     expect(parsedHar[0].request.postData).toBeDefined();
     expect(parsedHar[1].request.postData).toBeDefined();
-    expect(parsedHar[0].request.postData?.parsed).toEqual({ hello: "world" });
-    expect(parsedHar[1].request.postData?.parsed).toEqual([{ this: "valid" }]);
   });
 });
