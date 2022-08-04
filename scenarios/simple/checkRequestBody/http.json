@@ -3,7 +3,7 @@
     "entries": [
       {
         "request": {
-          "method": "GET",
+          "method": "POST",
           "url": "http://localhost/ping",
           "postData": {
             "mimeType": "application/json",

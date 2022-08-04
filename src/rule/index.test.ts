@@ -208,7 +208,7 @@ describe("Test Simple Scenarios", () => {
             x_x_x_x_results: {
               hits: 0,
             },
-            get: {
+            post: {
               responses: {
                 "200": {
                   x_x_x_x_results: {
@@ -216,7 +216,7 @@ describe("Test Simple Scenarios", () => {
                   },
                 },
               },
-              x_x_x_x_name: "get",
+              x_x_x_x_name: "post",
               x_x_x_x_results: {
                 hits: 0,
               },
