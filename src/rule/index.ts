@@ -146,10 +146,10 @@ const matchRequestBody = (
   incrementHit(operationNode.requestBody.content);
   resultOperationNode.requestBody.content = a.newContentBody();
 
-  const mimeType = request.postData?.mimeType as string;
+  const requestMimeType = request.postData?.mimeType as string;
   if (
-    mimeType === "application/json" &&
-    !operationNode.requestBody.content[mimeType]
+    requestMimeType === "application/json" &&
+    !operationNode.requestBody.content[requestMimeType]
   ) {
     result.success = false;
     resultOperationNode.requestBody.content["application/json"] =
