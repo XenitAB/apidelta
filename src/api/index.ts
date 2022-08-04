@@ -93,7 +93,7 @@ const getOperation = (
   return operationToBeAdded;
 };
 
-const getPathNode = (pathName: string, path: a.Path): a.Path => {
+const getPath = (pathName: string, path: a.Path): a.Path => {
   const pathToBeAdded: a.Path = {
     x_name: pathName,
     x_x_x_x_results: a.newReportItem(),
@@ -113,7 +113,7 @@ const parseApi = (api: a.Root) => {
 
   // Add paths
   for (const [pathName, path] of Object.entries(api.paths)) {
-    const p = getPathNode(pathName, path);
+    const p = getPath(pathName, path);
     root.paths[pathName] = p;
   }
 
