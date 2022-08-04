@@ -22,7 +22,7 @@ export type request = {
     {
       name: string;
       value: string;
-    },
+    }
   ];
   postData?: postData;
 };
