@@ -181,7 +181,13 @@ describe("Test Simple Scenarios", () => {
               hits: 0,
             },
             get: {
-              responses: {},
+              responses: {
+                "200": {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                },
+              },
               x_x_x_x_name: "get",
               x_x_x_x_results: {
                 hits: 0,
@@ -199,7 +205,7 @@ describe("Test Simple Scenarios", () => {
       },
     ],
     [
-      "checkRequestBody",
+      "checkRequestBodyOk",
       {
         success: true,
         apiSubtree: {
@@ -231,6 +237,50 @@ describe("Test Simple Scenarios", () => {
                   },
                   "application/json": {
                     x_x_x_x_results: {
+                      hits: 0,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    ],
+    [
+      "checkRequestBodyWrongInputType",
+      {
+        success: false,
+        apiSubtree: {
+          "/ping": {
+            x_name: "/ping",
+            x_x_x_x_results: {
+              hits: 0,
+            },
+            get: {
+              responses: {
+                "200": {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                },
+              },
+              x_x_x_x_name: "get",
+              x_x_x_x_results: {
+                hits: 0,
+              },
+              requestBody: {
+                required: false,
+                x_x_x_x_results: {
+                  hits: 0,
+                },
+                content: {
+                  x_x_x_x_results: {
+                    hits: 0,
+                  },
+                  "application/json": {
+                    x_x_x_x_results: {
+                      error: "JSON NOT ACCORDING TO SCHEMA",
                       hits: 0,
                     },
                   },

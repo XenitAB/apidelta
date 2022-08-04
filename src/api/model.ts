@@ -1,3 +1,9 @@
+import Ajv, { AnySchema, ValidateFunction } from "ajv";
+const ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
+
+ajv.addKeyword("example");
+ajv.addKeyword("xml");
+
 export type HTTPMETHOD =
   | "connect"
   | "delete"
@@ -15,7 +21,9 @@ export type ApiError =
   | "STATUS NOT FOUND"
   | "REQUEST BODY NOT FOUND"
   | "CONTENT WAS NOT FOUND"
-  | "BAD MIMETYPE";
+  | "BAD MIMETYPE"
+  | "BAD SCHEMA"
+  | "JSON NOT ACCORDING TO SCHEMA";
 
 export type ReportResult = {
   hits: number;
@@ -93,7 +101,7 @@ export const newOperationNode = (name: HTTPMETHOD): Operation => {
 
 export const newOperationNodeWithError = (
   name: HTTPMETHOD,
-  error: ApiError
+  error: ApiError,
 ): Operation => {
   return {
     responses: {},
@@ -105,7 +113,7 @@ export const newOperationNodeWithError = (
 export const newParamaterNode = (
   name: string,
   in_: string,
-  required: boolean
+  required: boolean,
 ): Parameter => {
   return {
     name,
@@ -185,19 +193,26 @@ export type ApiResponse = {
 
 export const newMimeTypeWithError = (error: ApiError): MimeType => {
   return {
-    schema: null,
     x_x_x_x_results: newReportItemWithError(error),
   };
 };
 
-export const newMimeType = (schema: any): MimeType => {
+export const newMimeType = (schema?: AnySchema): MimeType => {
+  if (schema) {
+    const validate = ajv.compile(schema);
+    return {
+      schema: schema,
+      validate: validate,
+      x_x_x_x_results: newReportItem(),
+    };
+  }
   return {
-    schema: schema,
     x_x_x_x_results: newReportItem(),
   };
 };
 
 export type MimeType = {
-  schema: any;
+  schema?: AnySchema;
+  validate?: ValidateFunction;
   x_x_x_x_results: ReportResult;
 };

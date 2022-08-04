@@ -1,0 +1,23 @@
+{
+  "log": {
+    "entries": [
+      {
+        "request": {
+          "method": "GET",
+          "url": "http://localhost/ping",
+          "postData": {
+            "mimeType": "application/json",
+            "text": "{\"hello\":\"world\"}"
+          }
+        },
+        "response": {
+          "status": 200,
+          "content": {
+            "mimeType": "text/plain",
+            "text": "{\"hello\":\"world\"}"
+          }
+        }
+      }
+    ]
+  }
+}

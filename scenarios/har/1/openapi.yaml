@@ -201,7 +201,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
       responses:
         '200':
           description: successful operation
@@ -234,7 +233,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
         - name: name
           in: query
           description: Name of pet that needs to be updated
@@ -271,7 +269,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
       responses:
         '400':
           description: Invalid pet value
@@ -293,7 +290,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
         - name: additionalMetadata
           in: query
           description: Additional Metadata
@@ -334,7 +330,6 @@ paths:
                 type: object
                 additionalProperties:
                   type: integer
-                  format: int32
       security:
         - api_key: []
   /store/order:
@@ -382,7 +377,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
       responses:
         '200':
           description: successful operation
@@ -413,7 +407,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
       responses:
         '400':
           description: Invalid ID supplied
@@ -503,12 +496,10 @@ paths:
               description: calls per hour allowed by the user
               schema:
                 type: integer
-                format: int32
             X-Expires-After:
               description: date in UTC when token expires
               schema:
                 type: string
-                format: date-time
           content:
             application/xml:
               schema:
@@ -610,23 +601,18 @@ externalDocs:
 components:
   schemas:
     Order:
-      x-swagger-router-model: io.swagger.petstore.model.Order
       properties:
         id:
           type: integer
-          format: int64
           example: 10
         petId:
           type: integer
-          format: int64
           example: 198772
         quantity:
           type: integer
-          format: int32
           example: 7
         shipDate:
           type: string
-          format: date-time
         status:
           type: string
           description: Order Status
@@ -637,14 +623,11 @@ components:
           example: approved
         complete:
           type: boolean
-      xml:
-        name: order
       type: object
     Customer:
       properties:
         id:
           type: integer
-          format: int64
           example: 100000
         username:
           type: string
@@ -677,24 +660,18 @@ components:
         name: address
       type: object
     Category:
-      x-swagger-router-model: io.swagger.petstore.model.Category
       properties:
         id:
           type: integer
-          format: int64
           example: 1
         name:
           type: string
           example: Dogs
-      xml:
-        name: category
       type: object
     User:
-      x-swagger-router-model: io.swagger.petstore.model.User
       properties:
         id:
           type: integer
-          format: int64
           example: 10
         username:
           type: string
@@ -716,32 +693,23 @@ components:
           example: 12345
         userStatus:
           type: integer
-          format: int32
           example: 1
           description: User Status
-      xml:
-        name: user
       type: object
     Tag:
-      x-swagger-router-model: io.swagger.petstore.model.Tag
       properties:
         id:
           type: integer
-          format: int64
         name:
           type: string
-      xml:
-        name: tag
       type: object
     Pet:
-      x-swagger-router-model: io.swagger.petstore.model.Pet
       required:
         - name
         - photoUrls
       properties:
         id:
           type: integer
-          format: int64
           example: 10
         name:
           type: string
@@ -771,14 +739,11 @@ components:
             - available
             - pending
             - sold
-      xml:
-        name: pet
       type: object
     ApiResponse:
       properties:
         code:
           type: integer
-          format: int32
         type:
           type: string
         message:

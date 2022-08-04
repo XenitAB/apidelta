@@ -7,10 +7,8 @@ const readApi = async (path: string): Promise<a.Root> => {
 };
 
 const getMimeType = (content: a.Content): a.MimeType | undefined => {
-  if (content["application/json"]) {
-    return a.newMimeType({
-      items: Object.keys(content["application/json"].schema).length,
-    });
+  if (content["application/json"] && content["application/json"].schema) {
+    return a.newMimeType(content["application/json"].schema);
   }
 };
 
@@ -29,7 +27,7 @@ const getContent = (response: a.ApiResponse): a.Content | undefined => {
 };
 
 const getResponses = (
-  responses: Record<string, a.ApiResponse>
+  responses: Record<string, a.ApiResponse>,
 ): Record<string, a.ApiResponse> => {
   const responsesToBeAdded: Record<string, a.ApiResponse> = {};
 
@@ -59,7 +57,7 @@ const getParameters = (parameters?: a.Parameter[]) => {
 };
 
 const getRequestBody = (
-  requestBody?: a.RequestBody
+  requestBody?: a.RequestBody,
 ): a.RequestBody | undefined => {
   if (!requestBody) {
     return;
@@ -74,7 +72,7 @@ const getRequestBody = (
 
 const getOperation = (
   name: a.HTTPMETHOD,
-  operation?: a.Operation
+  operation?: a.Operation,
 ): a.Operation | undefined => {
   if (!operation) {
     return;
