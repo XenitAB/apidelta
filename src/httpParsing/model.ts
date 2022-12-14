@@ -1,4 +1,8 @@
-// An empty object that contains all expected fields for a http request
+export type postData = {
+  mimeType: string;
+  parsed?: null | any;
+  text: string;
+};
 
 export type response = {
   status: number | "default";
@@ -20,11 +24,7 @@ export type request = {
       value: string;
     }
   ];
-  postData?: {
-    mimeType: string;
-    parsed?: Record<string, any>;
-    text: string;
-  };
+  postData?: postData;
 };
 
 export type t = {
